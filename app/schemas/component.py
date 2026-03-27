@@ -11,6 +11,8 @@ class ComponentBase(BaseModel):
     msrp_currency: str | None = None
     msrp_price: float | None = None
     official_url: str | None = None
+    image_url: str | None = None
+    hero_image_url: str | None = None
     notes: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

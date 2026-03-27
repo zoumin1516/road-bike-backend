@@ -21,7 +21,7 @@ def global_search(
     db: Session = Depends(get_db_session),
 ):
     like = f"%{q}%"
-    items: list[dict[str, str]] = []
+    items: list[dict[str, str | None]] = []
 
     if type in (None, "brand"):
         brands = db.scalars(
@@ -33,6 +33,7 @@ def global_search(
                 "id": item.brand_id,
                 "title": item.brand_name_en,
                 "subtitle": item.country_region or "Brand",
+                "image_url": item.logo_url or item.hero_image_url,
             }
             for item in brands
         )
@@ -48,6 +49,7 @@ def global_search(
                 "id": item.model_id,
                 "title": item.model_name,
                 "subtitle": item.bike_category or "Model",
+                "image_url": item.image_url or item.hero_image_url,
             }
             for item in models
         )
@@ -71,6 +73,7 @@ def global_search(
                 "id": item.build_id,
                 "title": item.build_name,
                 "subtitle": item.groupset_series or item.groupset_brand or "Build",
+                "image_url": item.image_url or item.hero_image_url,
             }
             for item in builds
         )
@@ -92,6 +95,7 @@ def global_search(
                 "id": item.component_id,
                 "title": item.component_name,
                 "subtitle": item.series or item.component_category,
+                "image_url": item.image_url or item.hero_image_url,
             }
             for item in components
         )

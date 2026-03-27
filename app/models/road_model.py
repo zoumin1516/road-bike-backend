@@ -19,6 +19,8 @@ class RoadModel(Base):
     current_generation_year: Mapped[int | None] = mapped_column(Integer, nullable=True)
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     official_model_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    hero_image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     brand: Mapped["Brand"] = relationship(back_populates="models")

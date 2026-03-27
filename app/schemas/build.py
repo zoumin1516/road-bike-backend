@@ -20,6 +20,8 @@ class BuildBase(BaseModel):
     is_electronic_shifting: bool
     is_stock_complete_bike: bool
     official_build_url: str | None = None
+    image_url: str | None = None
+    hero_image_url: str | None = None
     notes: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

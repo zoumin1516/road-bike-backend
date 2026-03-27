@@ -14,6 +14,8 @@ class RoadModelBase(BaseModel):
     current_generation_year: int | None = None
     is_active: bool
     official_model_url: str | None = None
+    image_url: str | None = None
+    hero_image_url: str | None = None
     notes: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -11,6 +11,8 @@ class BrandBase(BaseModel):
     sales_model: str | None = None
     main_road_categories: str | None = None
     official_website: str | None = None
+    logo_url: str | None = None
+    hero_image_url: str | None = None
     notes: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -16,4 +16,6 @@ class Component(Base):
     msrp_currency: Mapped[str | None] = mapped_column(String(16), nullable=True)
     msrp_price: Mapped[float | None] = mapped_column(Numeric(12, 2), nullable=True)
     official_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    hero_image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)

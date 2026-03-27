@@ -25,6 +25,8 @@ class Build(Base):
     is_electronic_shifting: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, index=True)
     is_stock_complete_bike: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     official_build_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    hero_image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     model: Mapped["RoadModel"] = relationship(back_populates="builds")

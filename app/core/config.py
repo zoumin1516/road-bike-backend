@@ -17,7 +17,18 @@ class Settings(BaseSettings):
     mysql_database: str = "road_bike_db"
     mysql_echo: bool = False
 
+    jwt_secret_key: str = "change_me_to_a_long_random_secret"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 120
+    admin_username: str = "admin"
+    admin_password_hash: str = ""
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
     def database_url(self) -> str:
