@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 120
     admin_username: str = "admin"
     admin_password_hash: str = ""
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://43.142.172.104:3000"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
 
