@@ -4,7 +4,6 @@ on:
     branches:
       - main
 env:
-  REGISTRY: 43.142.172.104:5000
   IMAGE_NAME: road-bike-backend
   DEPLOY_PATH: /opt/bike-web
 jobs:
@@ -13,21 +12,35 @@ jobs:
     steps:
       - name: Checkout backend repo
         uses: actions/checkout@v4
+
       - name: Set build tag
         id: vars
         run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
-      - name: Log in to registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Build backend image
         run: |
-          docker build -t "$REGISTRY/$IMAGE_NAME:${{ steps.vars.outputs.tag }}" .
-      - name: Push backend image
+          set -e
+          echo "Building $IMAGE_NAME:${{ steps.vars.outputs.tag }}"
+          docker build -t "$IMAGE_NAME:${{ steps.vars.outputs.tag }}" .
+          docker image ls "$IMAGE_NAME"
+
+      - name: Save backend image archive
         run: |
-          docker push "$REGISTRY/$IMAGE_NAME:${{ steps.vars.outputs.tag }}"
+          set -e
+          echo "Saving image archive backend-${{ steps.vars.outputs.tag }}.tar.gz"
+          docker save "$IMAGE_NAME:${{ steps.vars.outputs.tag }}" | gzip > "backend-${{ steps.vars.outputs.tag }}.tar.gz"
+          ls -lh "backend-${{ steps.vars.outputs.tag }}.tar.gz"
+
+      - name: Copy backend image archive to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "backend-${{ steps.vars.outputs.tag }}.tar.gz"
+          target: "/tmp"
+
       - name: Deploy backend to server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -37,7 +50,12 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             set -e
+            echo "==> Starting backend deployment"
+            mkdir -p "${{ env.DEPLOY_PATH }}"
             cd "${{ env.DEPLOY_PATH }}"
+            echo "==> Loading image archive"
+            gunzip -c "/tmp/backend-${{ steps.vars.outputs.tag }}.tar.gz" | docker load
+            rm -f "/tmp/backend-${{ steps.vars.outputs.tag }}.tar.gz"
             if [ ! -f .env ]; then
               touch .env
             fi
@@ -46,8 +64,20 @@ jobs:
             else
               echo 'BACKEND_TAG=${{ steps.vars.outputs.tag }}' >> .env
             fi
-            docker login "${{ env.REGISTRY }}" -u "${{ secrets.REGISTRY_USERNAME }}" -p "${{ secrets.REGISTRY_PASSWORD }}"
-            docker compose pull backend
+            echo "==> Effective BACKEND_TAG"
+            grep '^BACKEND_TAG=' .env || true
+            echo "==> Recreating backend container"
             docker compose up -d backend
+            echo "==> Waiting for backend health"
             sleep 8
             curl -f http://127.0.0.1:8000/api/health
+            echo "==> Backend container status"
+            docker compose ps backend
+            echo "==> Cleaning old backend images"
+            docker image prune -f >/dev/null 2>&1 || true
+            docker images "$IMAGE_NAME" --format '{{.Repository}}:{{.Tag}} {{.ID}}' | tail -n +4 | awk '{print $2}' | xargs -r docker rmi -f || true
+            echo "==> Backend deployment finished"
+
+      - name: Clean local backend archive
+        if: always()
+        run: rm -f "backend-${{ steps.vars.outputs.tag }}.tar.gz"
