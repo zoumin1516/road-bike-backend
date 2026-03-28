@@ -1,0 +1,144 @@
+from sqlalchemy import create_engine, text
+
+from app.core.config import get_settings
+
+profiles = {
+    "brand_002": {
+        "country_region": "United States",
+        "market_positioning": "High-end Performance Cycling",
+        "sales_model": "Global Dealer Network + Trek Retail",
+        "headquarters": "Waterloo, Wisconsin, United States",
+        "founded_year": "1976",
+        "founder": "Richard Burke; Bevil Hogg; some early histories also mention John Burke family involvement in later expansion",
+        "parent_company": "Trek Bicycle Corporation",
+        "company_type": "Privately Held Bicycle and Cycling Equipment Company",
+        "ownership_type": "Private Company",
+        "road_cycling_positioning": "Trek 在公路车领域定位为覆盖职业竞赛、耐力骑行、综合性能与大众高端消费市场的全球头部品牌。其优势在于成熟的整车平台、稳定的经销与零售体系、强职业赛事曝光，以及从竞赛导向到大众性能导向的完整产品矩阵。",
+        "target_audience": "希望获得成熟平台、稳定售后与强品牌背书的公路车用户，包括赛事用户、高端业余骑手、耐力骑行爱好者以及偏好主流大品牌体系的消费者。",
+        "price_tier": "Mid-High to Premium",
+        "brand_slogan": "Ride Bikes. Have Fun. Feel Good.",
+        "brand_story": "Trek 创立于 1976 年，总部位于美国威斯康星州 Waterloo，是全球最具规模和影响力的综合自行车品牌之一。品牌长期通过职业公路赛事、经销网络、零售门店与完整产品矩阵建立全球影响力。在公路车方向，Trek 通过 Madone、Emonda、Domane、Checkpoint 与 Speed Concept 等平台，形成覆盖空气动力、轻量爬坡、耐力、gravel 与计时铁三的完整布局。",
+        "mission": "Trek 长期强调通过自行车改善生活质量，并以推广骑行文化、提升骑行可及性与提供高性能产品体验为核心方向。",
+        "core_values": "Performance and innovation; Rider experience; Broad accessibility to cycling; Dealer and service network strength; Racing validation; Product reliability",
+        "core_technologies": "OCLV Carbon; IsoSpeed; Kammtail Virtual Foil aero shaping; integrated cockpit systems; Project One customization; system-level frame and comfort engineering",
+        "r_and_d_capabilities": "Trek 具备成熟的碳纤维车架开发、空气动力学验证、舒适性结构设计、整车系统整合与定制化产品开发能力。其在职业赛事平台和消费级高端平台之间有较强的技术转化能力，并依托全球产品体系持续更新。",
+        "flagship_platforms": "Madone; Emonda; Domane; Speed Concept; Checkpoint",
+        "employee_count_range": "1000-5000",
+        "annual_revenue_range": "High hundreds of millions USD to over 1B USD (market estimates vary)",
+        "product_lines": "Road bikes; Gravel bikes; Mountain bikes; City and fitness bikes; Triathlon and TT bikes; E-bikes; Helmets; Apparel; Wheels and accessories",
+        "road_product_lines": "Madone; Emonda; Domane; Speed Concept; Checkpoint",
+        "data_sources": "Official Trek company pages; Trek official product pages; public company profile summaries; widely documented industry information",
+        "notes": "Trek 的优势在于平台成熟、车型层级清晰、渠道体系稳健，并在高端公路与大众性能市场都具备很强的可见度。对消费者而言，Trek 往往代表更稳定的产品体系和品牌服务，但不同地区价格和配置策略可能会受到渠道结构影响。",
+    },
+    "brand_003": {
+        "country_region": "Taiwan",
+        "market_positioning": "Mainstream to High-end Performance Cycling",
+        "sales_model": "Global Dealer Network + Brand Retail",
+        "headquarters": "Taichung, Taiwan",
+        "founded_year": "1972",
+        "founder": "King Liu",
+        "parent_company": "Giant Manufacturing Co., Ltd.",
+        "company_type": "Public Bicycle Manufacturing and Cycling Products Company",
+        "ownership_type": "Public Company",
+        "road_cycling_positioning": "Giant 在公路车领域定位为兼具规模制造能力、技术实力与高性价比覆盖能力的全球头部品牌。其公路线产品覆盖竞赛、耐力、入门性能与女性细分市场，既面向大众升级用户，也面向高性能骑行需求用户。",
+        "target_audience": "从首次进入性能公路车市场的用户，到希望获得成熟碳架平台和较高性价比的进阶骑手，以及需要可靠品牌与稳定供应链支持的消费者。",
+        "price_tier": "Entry-Mid to High",
+        "brand_slogan": "Ride Unleashed",
+        "brand_story": "Giant 创立于 1972 年，是全球最具规模的整车制造商之一，也是现代自行车产业链中最有影响力的企业之一。品牌不仅以自有整车闻名，也长期在全球产业链中扮演重要制造角色。在公路车方向，Giant 通过 TCR、Propel、Defy、Contend、Avail 等平台，建立了覆盖竞赛、空气动力、耐力和入门公路的完整产品矩阵。",
+        "mission": "Giant 长期强调让更多人享受骑行，并通过技术、制造与全球渠道能力提升骑行产品的可及性与性能体验。",
+        "core_values": "Accessibility through scale; Engineering efficiency; Reliable performance; Global cycling participation; Value and innovation balance",
+        "core_technologies": "Advanced Composite Technology; OverDrive steerer systems; Compact Road geometry heritage; AeroSystem shaping; integrated seatpost and cockpit solutions on select platforms",
+        "r_and_d_capabilities": "Giant 在碳纤维车架制造、整车工业化、全球供应链整合与平台规模化迭代方面具备极强能力。其研发优势不仅体现在车型平台开发，也体现在制造效率、成本控制和全球化量产落地。",
+        "flagship_platforms": "TCR; Propel; Defy; Contend; Avail",
+        "employee_count_range": "5000-10000+",
+        "annual_revenue_range": "Over 1B USD equivalent (varies with market cycles)",
+        "product_lines": "Road bikes; Gravel bikes; Mountain bikes; City and commuting bikes; E-bikes; Kids bikes; Wheels; Apparel and accessories",
+        "road_product_lines": "TCR; Propel; Defy; Contend; Avail",
+        "data_sources": "Official Giant corporate pages; Giant official product pages; public company filings and summaries; widely documented industry information",
+        "notes": "Giant 的核心优势是规模、制造、平台成熟度与价格带覆盖能力，在全球范围内具有很强的供给能力和品牌认知。对公路车用户而言，Giant 通常意味着更稳定的产品体系和较高的整体性价比。",
+    },
+    "brand_009": {
+        "country_region": "Taiwan",
+        "market_positioning": "Mainstream to High-end Performance Cycling",
+        "sales_model": "Global Dealer Network",
+        "headquarters": "Yuanlin, Changhua County, Taiwan",
+        "founded_year": "1972",
+        "founder": "Ike Tseng",
+        "parent_company": "Merida Industry Co., Ltd.",
+        "company_type": "Public Bicycle Manufacturing and Cycling Products Company",
+        "ownership_type": "Public Company",
+        "road_cycling_positioning": "Merida 在公路车领域定位为兼具赛事竞速能力、成熟制造实力与大众高端覆盖能力的国际品牌。其产品线既面向职业赛事平台，也覆盖更广泛的中高端骑行市场，在空气动力与轻量爬坡平台上都具备较强存在感。",
+        "target_audience": "希望获得成熟竞赛平台、稳定产品体系与较高性能价格比的公路车用户，包括竞赛导向用户、进阶骑手及更关注整车综合配置的消费者。",
+        "price_tier": "Mid to High",
+        "brand_slogan": "More Bike",
+        "brand_story": "Merida 创立于 1972 年，是台湾最重要的自行车企业之一，也是全球整车制造与品牌体系中的关键力量。品牌长期通过自有整车、国际经销体系以及与职业车队合作建立全球影响力。在公路车方向，Merida 通过 Scultura、Reacto、Endurance 等平台，覆盖轻量竞赛、空气动力竞赛与长距离耐力骑行。",
+        "mission": "Merida 长期强调通过更高质量、更高价值的产品为更多骑手提供更好的骑行体验，并持续推动全球骑行文化。",
+        "core_values": "Engineering and manufacturing excellence; Racing validation; Strong value proposition; Global product consistency; Practical innovation",
+        "core_technologies": "CF carbon frame development; aero frame integration; comfort-oriented endurance geometry; wire and cockpit integration; race-proven frame platform evolution",
+        "r_and_d_capabilities": "Merida 在碳纤维车架开发、整车平台迭代、制造工艺控制与赛事平台验证方面具备成熟能力。品牌在轻量竞赛和空气动力平台上持续更新，并以制造体系支撑全球市场供给。",
+        "flagship_platforms": "Scultura; Reacto; Endurance",
+        "employee_count_range": "1000-5000+",
+        "annual_revenue_range": "High hundreds of millions USD equivalent (varies with cycle and market)",
+        "product_lines": "Road bikes; Gravel bikes; Mountain bikes; Urban and trekking bikes; E-bikes; Framesets; Accessories",
+        "road_product_lines": "Scultura; Reacto; Endurance",
+        "data_sources": "Official Merida corporate pages; Merida official product pages; public company summaries; widely documented industry information",
+        "notes": "Merida 在公路车市场中通常被视为兼具赛事形象与制造实力的品牌。其优势在于平台成熟、空气动力与轻量平台清晰、整体配置竞争力较强；不同市场下的车型配置与可得性会受到区域策略影响。",
+    },
+    "brand_012": {
+        "country_region": "Italy",
+        "market_positioning": "Top-tier Heritage Racing Brand",
+        "sales_model": "Global Dealer Network",
+        "headquarters": "Cambiago, Lombardy, Italy",
+        "founded_year": "1954",
+        "founder": "Ernesto Colnago",
+        "parent_company": "Colnago Ernesto & C. S.r.l.",
+        "company_type": "Heritage Performance Bicycle Brand",
+        "ownership_type": "Privately Controlled Brand (ownership structure has evolved over time)",
+        "road_cycling_positioning": "Colnago 在公路车领域定位为具有深厚竞赛传统、意大利工艺审美与高端品牌溢价的顶级公路车品牌。其产品强调职业赛事血统、品牌历史、设计语言和高端消费象征意义，同时在当代竞赛平台上保持空气动力与高性能定位。",
+        "target_audience": "重视品牌历史、工艺、赛事血统与高端辨识度的公路车用户，包括高端发烧友、收藏型消费者、审美驱动型骑手以及追求职业赛事同源平台的高端用户。",
+        "price_tier": "Premium to Luxury",
+        "brand_slogan": "Italia Veloce",
+        "brand_story": "Colnago 由 Ernesto Colnago 于 1954 年创立，是公路自行车历史上最具传奇色彩的意大利品牌之一。品牌在职业公路赛事中留下极深印记，长期与顶级车队和冠军选手相联系。在现代公路车领域，Colnago 通过 V 系列、C 系列与更高端的历史传承体系，把竞赛性能、意大利工艺与品牌文化价值结合起来。",
+        "mission": "Colnago 长期通过高性能竞赛自行车与意大利工艺语言，传达骑行作为速度、审美与历史传承结合体的品牌价值。",
+        "core_values": "Racing heritage; Italian craftsmanship; Prestige and identity; Performance with tradition; Design distinction",
+        "core_technologies": "Monocoque carbon race platform development; aerodynamic racing integration; high-end layup and chassis tuning; geometry refinement informed by pro racing",
+        "r_and_d_capabilities": "Colnago 在高端竞赛平台开发、碳架性能调校、职业赛事反馈吸收与高端车架品牌化表达方面具备明显优势。与大规模制造型品牌相比，其研发叙事更强调竞赛性能、工艺语言与品牌资产积累。",
+        "flagship_platforms": "V4Rs; V4; C68; G3-X",
+        "employee_count_range": "Smaller specialized premium brand",
+        "annual_revenue_range": "Private premium brand; exact public figures limited",
+        "product_lines": "Road bikes; Racing framesets; Gravel bikes; High-end accessories and branded equipment",
+        "road_product_lines": "V4Rs; V4; C68",
+        "data_sources": "Official Colnago history pages; Colnago official product pages; public cycling media brand histories; widely documented industry information",
+        "notes": "Colnago 的核心价值不只在配置参数，更在品牌历史、职业赛事象征意义和意大利高端公路车文化中的地位。对于用户而言，它通常意味着更强的品牌认同与审美溢价，同时也伴随更高价格和更偏高端的消费门槛。",
+    },
+}
+
+
+def main():
+    settings = get_settings()
+    engine = create_engine(settings.database_url)
+    columns = list(next(iter(profiles.values())).keys())
+    assignments = ",\n        ".join(f"{col} = :{col}" for col in columns)
+    stmt = text(f"""
+        UPDATE brands
+        SET
+        {assignments}
+        WHERE brand_id = :brand_id
+    """)
+
+    with engine.begin() as conn:
+        for brand_id, payload in profiles.items():
+            conn.execute(stmt, {**payload, "brand_id": brand_id})
+
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(
+                "SELECT brand_id, brand_name_en, headquarters, founded_year, founder, price_tier FROM brands WHERE brand_id IN ('brand_002','brand_003','brand_009','brand_012') ORDER BY brand_id"
+            )
+        ).fetchall()
+        for row in rows:
+            print("\t".join("" if value is None else str(value) for value in row))
+
+
+if __name__ == "__main__":
+    main()

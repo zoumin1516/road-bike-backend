@@ -39,6 +39,27 @@ def update_brand(
     brand.sales_model = payload.sales_model
     brand.main_road_categories = payload.main_road_categories
     brand.official_website = str(payload.official_website) if payload.official_website else None
+    brand.headquarters = payload.headquarters
+    brand.founded_year = payload.founded_year
+    brand.founder = payload.founder
+    brand.parent_company = payload.parent_company
+    brand.company_type = payload.company_type
+    brand.ownership_type = payload.ownership_type
+    brand.road_cycling_positioning = payload.road_cycling_positioning
+    brand.target_audience = payload.target_audience
+    brand.price_tier = payload.price_tier
+    brand.brand_slogan = payload.brand_slogan
+    brand.brand_story = payload.brand_story
+    brand.mission = payload.mission
+    brand.core_values = payload.core_values
+    brand.core_technologies = payload.core_technologies
+    brand.r_and_d_capabilities = payload.r_and_d_capabilities
+    brand.flagship_platforms = payload.flagship_platforms
+    brand.employee_count_range = payload.employee_count_range
+    brand.annual_revenue_range = payload.annual_revenue_range
+    brand.product_lines = payload.product_lines
+    brand.road_product_lines = payload.road_product_lines
+    brand.data_sources = payload.data_sources
     brand.notes = payload.notes
 
     db.add(brand)
@@ -58,6 +79,27 @@ def update_brand(
             "sales_model": brand.sales_model,
             "main_road_categories": brand.main_road_categories,
             "official_website": brand.official_website,
+            "headquarters": brand.headquarters,
+            "founded_year": brand.founded_year,
+            "founder": brand.founder,
+            "parent_company": brand.parent_company,
+            "company_type": brand.company_type,
+            "ownership_type": brand.ownership_type,
+            "road_cycling_positioning": brand.road_cycling_positioning,
+            "target_audience": brand.target_audience,
+            "price_tier": brand.price_tier,
+            "brand_slogan": brand.brand_slogan,
+            "brand_story": brand.brand_story,
+            "mission": brand.mission,
+            "core_values": brand.core_values,
+            "core_technologies": brand.core_technologies,
+            "r_and_d_capabilities": brand.r_and_d_capabilities,
+            "flagship_platforms": brand.flagship_platforms,
+            "employee_count_range": brand.employee_count_range,
+            "annual_revenue_range": brand.annual_revenue_range,
+            "product_lines": brand.product_lines,
+            "road_product_lines": brand.road_product_lines,
+            "data_sources": brand.data_sources,
             "notes": brand.notes,
         },
     )

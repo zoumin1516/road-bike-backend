@@ -10,6 +10,27 @@ class BrandUpdateRequest(BaseModel):
     sales_model: str | None = None
     main_road_categories: str | None = None
     official_website: HttpUrl | None = None
+    headquarters: str | None = None
+    founded_year: str | None = None
+    founder: str | None = None
+    parent_company: str | None = None
+    company_type: str | None = None
+    ownership_type: str | None = None
+    road_cycling_positioning: str | None = None
+    target_audience: str | None = None
+    price_tier: str | None = None
+    brand_slogan: str | None = None
+    brand_story: str | None = None
+    mission: str | None = None
+    core_values: str | None = None
+    core_technologies: str | None = None
+    r_and_d_capabilities: str | None = None
+    flagship_platforms: str | None = None
+    employee_count_range: str | None = None
+    annual_revenue_range: str | None = None
+    product_lines: str | None = None
+    road_product_lines: str | None = None
+    data_sources: str | None = None
     notes: str | None = None
 
 
